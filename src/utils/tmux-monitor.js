@@ -621,9 +621,9 @@ class TmuxMonitor extends EventEmitter {
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
             
-            // Detect user input (line starting with "> " followed by content)
-            if (line.startsWith('> ') && line.length > 2) {
-                userQuestionLines = [line.substring(2).trim()];
+            // Detect user input (line starting with "> " or "❯ " followed by content)
+            if ((line.startsWith('> ') || line.startsWith('❯ ')) && line.length > 2) {
+                userQuestionLines = [line.replace(/^[>❯]\s*/, '').trim()];
                 inUserInput = true;
                 inResponse = false; // Reset response capture
                 responseLines = []; // Clear previous response
@@ -637,33 +637,33 @@ class TmuxMonitor extends EventEmitter {
             }
             
             // Continue capturing multi-line user input
-            if (inUserInput && !line.startsWith('⏺') && line.length > 0) {
+            if (inUserInput && !line.startsWith('⏺') && !line.startsWith('●') && line.length > 0) {
                 userQuestionLines.push(line);
                 continue;
             }
             
             // End of user input
-            if (inUserInput && (line.startsWith('⏺') || line.length === 0)) {
+            if (inUserInput && (line.startsWith('⏺') || line.startsWith('●') || line.length === 0)) {
                 inUserInput = false;
                 userQuestion = userQuestionLines.join(' ');
             }
             
-            // Detect Claude response (line starting with "⏺ " or other response indicators)
-            if (line.startsWith('⏺ ') || 
-                (inResponse && line.length > 0 && 
+            // Detect Claude response (line starting with "⏺ " or "● " or other response indicators)
+            if (line.startsWith('⏺ ') || line.startsWith('● ') ||
+                (inResponse && line.length > 0 &&
                  !line.startsWith('╭') && !line.startsWith('│') && !line.startsWith('╰') &&
-                 !line.startsWith('> ') && !line.includes('? for shortcuts'))) {
-                
-                if (line.startsWith('⏺ ')) {
+                 !line.startsWith('> ') && !line.startsWith('❯ ') && !line.includes('? for shortcuts'))) {
+
+                if (line.startsWith('⏺ ') || line.startsWith('● ')) {
                     inResponse = true;
-                    responseLines = [line.substring(2).trim()]; // Remove "⏺ " prefix
+                    responseLines = [line.replace(/^[⏺●]\s*/, '').trim()];
                 } else if (inResponse) {
                     responseLines.push(line);
                 }
             }
             
             // Stop capturing response when we hit another prompt or box boundary
-            if (inResponse && (line.startsWith('╭') || line.startsWith('│ > ') || line.includes('? for shortcuts'))) {
+            if (inResponse && (line.startsWith('╭') || line.startsWith('│ > ') || line.startsWith('❯ ') || line.includes('? for shortcuts'))) {
                 inResponse = false;
             }
         }
@@ -688,8 +688,8 @@ class TmuxMonitor extends EventEmitter {
         if (!userQuestion) {
             for (let i = lines.length - 1; i >= 0; i--) {
                 const line = lines[i].trim();
-                if (line.startsWith('> ') && line.length > 2) {
-                    userQuestion = line.substring(2).trim();
+                if ((line.startsWith('> ') || line.startsWith('❯ ')) && line.length > 2) {
+                    userQuestion = line.replace(/^[>❯]\s*/, '').trim();
                     break;
                 }
             }

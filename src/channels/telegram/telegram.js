@@ -65,16 +65,21 @@ class TelegramChannel extends NotificationChannel {
     }
 
     _getCurrentTmuxSession() {
+        // TMUX_PANE is set by tmux for all child processes (e.g. %0)
+        // This is the most reliable way to identify the correct pane
+        const tmuxPane = process.env.TMUX_PANE;
+        if (tmuxPane) {
+            return tmuxPane;
+        }
+
         try {
-            // Try to get current tmux session
-            const tmuxSession = execSync('tmux display-message -p "#S"', { 
+            const { execFileSync } = require('child_process');
+            const tmuxTarget = execFileSync('tmux', ['display-message', '-p', '#{session_name}:#{window_index}'], {
                 encoding: 'utf8',
                 stdio: ['ignore', 'pipe', 'ignore']
             }).trim();
-            
-            return tmuxSession || null;
+            return tmuxTarget || null;
         } catch (error) {
-            // Not in a tmux session or tmux not available
             return null;
         }
     }
