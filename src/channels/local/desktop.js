@@ -61,11 +61,25 @@ class DesktopChannel extends NotificationChannel {
         }
     }
 
+    _isWSL() {
+        try {
+            const os = require('os');
+            return os.release().toLowerCase().includes('microsoft');
+        } catch {
+            return false;
+        }
+    }
+
     _sendLinux(title, message, sound) {
+        if (this._isWSL()) {
+            this.logger.debug('WSL detected, skipping desktop notification');
+            return true;
+        }
         try {
             const notificationTimeout = parseInt(process.env.NOTIFICATION_TIMEOUT) || 3000;
             const displayTime = parseInt(process.env.NOTIFICATION_DISPLAY_TIME) || 10000;
-            execSync(`notify-send "${title}" "${message}" -t ${displayTime}`, { timeout: notificationTimeout });
+            const { execFileSync } = require('child_process');
+            execFileSync('notify-send', [title, message, '-t', String(displayTime)], { timeout: notificationTimeout });
             this._playSound(sound);
             return true;
         } catch (error) {
