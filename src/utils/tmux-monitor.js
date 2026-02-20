@@ -655,13 +655,19 @@ class TmuxMonitor extends EventEmitter {
                  !line.startsWith('> ') && !line.startsWith('❯ ') && !line.includes('? for shortcuts'))) {
 
                 if (line.startsWith('⏺ ') || line.startsWith('● ')) {
+                    const content = line.replace(/^[⏺●]\s*/, '').trim();
+                    // Skip hook output lines — they're not Claude's response
+                    if (/^Ran \d+ .* hooks/.test(content)) {
+                        inResponse = false;
+                        continue;
+                    }
                     inResponse = true;
-                    responseLines = [line.replace(/^[⏺●]\s*/, '').trim()];
+                    responseLines = [content];
                 } else if (inResponse) {
                     responseLines.push(line);
                 }
             }
-            
+
             // Stop capturing response when we hit another prompt or box boundary
             if (inResponse && (line.startsWith('╭') || line.startsWith('│ > ') || line.startsWith('❯ ') || line.includes('? for shortcuts'))) {
                 inResponse = false;

@@ -17,7 +17,8 @@ class TelegramChannel extends NotificationChannel {
         this.sessionsDir = path.join(__dirname, '../../data/sessions');
         this.tmuxMonitor = new TmuxMonitor();
         this.apiBaseUrl = 'https://api.telegram.org';
-        this.botUsername = null; // Cache for bot username
+        this.botUsername = null;
+        this.maxResponseLength = parseInt(config.maxResponseLength || process.env.TG_MAX_RESPONSE_LENGTH) || 1000;
         
         this._ensureDirectories();
         this._validateConfig();
@@ -197,8 +198,8 @@ class TelegramChannel extends NotificationChannel {
             }
             
             if (notification.metadata.claudeResponse) {
-                messageText += `🤖 *Claude Response:*\n${notification.metadata.claudeResponse.substring(0, 300)}`;
-                if (notification.metadata.claudeResponse.length > 300) {
+                messageText += `🤖 *Claude Response:*\n${notification.metadata.claudeResponse.substring(0, this.maxResponseLength)}`;
+                if (notification.metadata.claudeResponse.length > this.maxResponseLength) {
                     messageText += '...';
                 }
                 messageText += '\n\n';
