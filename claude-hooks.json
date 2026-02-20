@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node /path/to/Claude-Code-Remote/claude-hook-notify.js completed",
+            "command": "node /home/kitecloud/projects/Claude-Code-Remote/claude-hook-notify.js completed",
             "timeout": 5
           }
         ]
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command", 
-            "command": "node /path/to/Claude-Code-Remote/claude-hook-notify.js waiting",
+            "command": "node /home/kitecloud/projects/Claude-Code-Remote/claude-hook-notify.js waiting",
             "timeout": 5
           }
         ]

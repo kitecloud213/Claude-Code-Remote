@@ -48,7 +48,8 @@ class TelegramChannel extends NotificationChannel {
     _getNetworkOptions() {
         const options = {};
         if (this.config.forceIPv4) {
-            options.family = 4;
+            const https = require('https');
+            options.httpsAgent = new https.Agent({ family: 4 });
         }
         return options;
     }
