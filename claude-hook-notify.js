@@ -9,13 +9,14 @@ const path = require('path');
 const fs = require('fs');
 const dotenv = require('dotenv');
 
+// Only send notifications when running inside tmux
+if (!process.env.TMUX_PANE) {
+    process.exit(0);
+}
+
 // Load environment variables from the project directory
 const projectDir = path.dirname(__filename);
 const envPath = path.join(projectDir, '.env');
-
-console.log('🔍 Hook script started from:', process.cwd());
-console.log('📁 Script location:', __filename);
-console.log('🔧 Looking for .env at:', envPath);
 
 if (fs.existsSync(envPath)) {
     console.log('✅ .env file found, loading...');
