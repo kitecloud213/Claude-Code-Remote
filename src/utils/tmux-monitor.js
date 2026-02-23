@@ -685,7 +685,9 @@ class TmuxMonitor extends EventEmitter {
             .replace(/^❯\s*$/gm, '')                // empty prompt lines
             .replace(/^\s*\? for shortcuts\s*$/gm, '') // shortcut hint
             .replace(/^\s*esc to interrupt\s*$/gm, '') // interrupt hint
-            .replace(/^✽.*(?:running|hooks).*$/gm, '') // hook progress lines
+            .replace(/^.*(?:running stop hooks|running hooks).*$/gm, '') // hook progress lines
+            .replace(/^\S+@\S+:.*$/gm, '')          // status bar (user@host:path)
+            .replace(/^.*\|\s*(?:Opus|Sonnet|Haiku).*$/gm, '') // model status bar
             .replace(/\n{3,}/g, '\n\n')             // collapse excess blank lines
             .trim();
 
